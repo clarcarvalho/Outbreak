@@ -1,0 +1,48 @@
+const Narrativa = require("../models/narrativa");
+const database = require("../config/db");
+
+async function criarNarrativa(username, content) {
+  await database.sync();
+  const narrativa = await Narrativa.create({
+    conteudo: content,
+    usuario: username,
+  });
+  return narrativa;
+}
+
+async function listarNarrativas() {
+  return await Narrativa.findAll();
+}
+
+async function editarNarrativa(id, content) {
+  await database.sync();
+
+  const narrativa = await Narrativa.findOne({
+    where: { id: id },
+  });
+
+  if (!narrativa) {
+    // tratar erro
+  } else {
+    await narrativa.update({
+      conteudo: content,
+    });
+    await narrativa.save();
+  }
+  return narrativa;
+}
+
+async function deletarNarrativa(id) {
+  const narrativa = await Narrativa.findOne({
+    where: { id: id },
+  });
+
+  return await narrativa.destroy();
+}
+
+module.exports = {
+  criarNarrativa,
+  listarNarrativas,
+  editarNarrativa,
+  deletarNarrativa,
+};

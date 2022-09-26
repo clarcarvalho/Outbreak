@@ -12,6 +12,10 @@ const Narrativa = db.define("narrativa", {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  usuario: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 });
 
 module.exports = Narrativa;

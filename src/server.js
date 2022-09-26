@@ -1,4 +1,9 @@
 const routes = require("./routes");
+const database = require("./config/db");
+
+async () => {
+  await database.sync();
+};
 
 const express = require("express");
 const app = express();

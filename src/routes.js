@@ -1,65 +1,77 @@
 const express = require("express");
-const router = express.Router();
+const route = express.Router();
 const path = require("path");
+const userController = require("./controllers/userController");
+const storiesController = require("./controllers/storiesController");
 
-router.get("/home", (req, res) => {
+route.get("/home", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "home.html"));
 });
 
-router.get("/login", (req, res) => {
+route.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
-router.get("/cadastro", (req, res) => {
+route.get("/cadastro", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "cadastro.html"));
 });
-router.get("/", async (req, res) => {
+
+route.get("/", async (req, res) => {
   res.send("Página inicial - Outbreak");
 });
-router.get("/feed", (req, res) => {
+
+route.get("/feed", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "feed.html"));
 });
 
-router.post("/cadastro-form", (req, res) => {
+route.post("/cadastro-form", async (req, res) => {
   const email = req.body.email;
   const username = req.body.username;
   const password = req.body.password;
-  console.log({
+
+  const usuarioCriado = await userController.criarUsuario(
     email,
-    username,
     password,
-  });
-  res.send({
-    email,
-    username,
-    password,
-  });
+    username
+  );
+
+  res.send(usuarioCriado);
 });
 
-router.post("/login-form", (req, res) => {
-  const email = req.body.email;
-  const username = req.body.username;
-  const password = req.body.password;
-  console.log({
-    email,
-    username,
-    password,
-  });
-  res.send({
-    email,
-    username,
-    password,
-  });
+route.post("/login-form", async (req, res) => {
+  const { email, password } = req.body;
+
+  const usuarioLogado = await userController.logarUsuario(email, password);
+
+  if (usuarioLogado) {
+    res.redirect("/feed");
+  } else {
+    res.send({ message: "deu ruim" });
+  }
 });
 
-router.post("/feed-form", (req, res) => {
-  const Narrativa = req.body.Narrativa;
-  console.log({
-    Narrativa,
-  });
-  res.send({
-    Narrativa,
-  });
+route.post("/narrativas", async (req, res) => {
+  const { username, content } = req.body;
+  const Story = await storiesController.criarNarrativa(username, content);
+
+  res.send(Story);
 });
 
-module.exports = router;
+route.get("/narrativas", async (req, res) => {
+  const narrativas = await storiesController.listarNarrativas();
+  res.send(narrativas);
+});
+
+route.patch("/narrativas/:id", async (req, res) => {
+  const id = req.params.id;
+  const content = req.body.content;
+  const Story = await storiesController.editarNarrativa(id, content);
+  res.send(Story);
+});
+
+route.delete("/narrativas/:id", async (req, res) => {
+  const id = req.params.id;
+  res.send(await storiesController.deletarNarrativa(id));
+});
+
+module.exports = route;
