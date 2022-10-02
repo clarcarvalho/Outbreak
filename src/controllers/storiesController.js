@@ -1,9 +1,10 @@
 const Narrativa = require("../models/narrativa");
 const database = require("../config/db");
 
-async function criarNarrativa(username, content) {
+async function criarNarrativa(username, title, content) {
   await database.sync();
   const narrativa = await Narrativa.create({
+    titulo: title,
     conteudo: content,
     usuario: username,
   });
@@ -11,7 +12,22 @@ async function criarNarrativa(username, content) {
 }
 
 async function listarNarrativas() {
-  return await Narrativa.findAll();
+  return await Narrativa.findAll({
+    order: [["createdAt", "DESC"]],
+  });
+}
+
+async function listarUltimasNarrativas() {
+  return await Narrativa.findAll({
+    order: [["createdAt", "DESC"]],
+    limit: 5,
+  });
+}
+
+async function buscarNarrativasporUsuario(username) {
+  return await Narrativa.findAll({
+    where: { usuario: username },
+  });
 }
 
 async function editarNarrativa(id, content) {
@@ -43,6 +59,8 @@ async function deletarNarrativa(id) {
 module.exports = {
   criarNarrativa,
   listarNarrativas,
+  listarUltimasNarrativas,
+  buscarNarrativasporUsuario,
   editarNarrativa,
   deletarNarrativa,
 };

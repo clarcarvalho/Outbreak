@@ -4,6 +4,16 @@ const database = require("../config/db");
 async function criarUsuario(email, password, username) {
   await database.sync();
 
+  const usuario = await Usuario.findOne({
+    where: {
+      username: username,
+    },
+  });
+
+  if (usuario) {
+    throw new Error("Usuário já existe");
+  }
+
   const usuarioCriado = await Usuario.create({
     email: email,
     password: password,
@@ -13,22 +23,40 @@ async function criarUsuario(email, password, username) {
   return usuarioCriado;
 }
 
-async function logarUsuario(email, password) {
-  console.log(email, password);
+async function logarUsuario(username, password) {
   const usuario = await Usuario.findOne({
     where: {
-      email: email,
+      username: username,
     },
   });
+
+  if (!usuario) return { error: "Usuário não encontrado" };
 
   if (usuario.password === password) {
     return usuario;
   } else {
-    return null;
+    return {
+      error: "Usuário ou senha inválidos",
+    };
   }
+}
+
+async function buscarUsuarioPorId(id) {
+  const usuario = await Usuario.findByPk(id);
+
+  if (usuario) {
+    return {
+      id: usuario.id,
+      username: usuario.username,
+      email: usuario.email,
+    };
+  }
+
+  return null;
 }
 
 module.exports = {
   criarUsuario,
   logarUsuario,
+  buscarUsuarioPorId,
 };

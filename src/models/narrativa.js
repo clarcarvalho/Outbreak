@@ -8,6 +8,10 @@ const Narrativa = db.define("narrativa", {
     allowNull: false,
     primaryKey: true,
   },
+  titulo: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   conteudo: {
     type: Sequelize.STRING,
     allowNull: false,
